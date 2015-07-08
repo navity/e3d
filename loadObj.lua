@@ -41,7 +41,8 @@ local indices = {}
 
 local i=1
 for v1,v2,v3 in wavefont:gfind("v +(%d*%.%d+) +(%d*%.%d+) +(%d*%.%d+)") do
-  print(v1 .. ' ' .. v2 .. ' ' .. v3)
+  vertices[i] = {v1,v2,v3}
+  i = i+1
 end
 
 

@@ -205,8 +205,21 @@ void deleteShader(struct shader *sh){
 }
 
 
-struct Object *createObject(struct Vec3 vertices[], int nbVertices, unsigned short index[] , int nbIndex){
+struct Object *createObject(float vertices[], int nbVertices, unsigned short index[] , int nbIndex){
       	struct Object *obj = malloc(sizeof(struct Object));
+
+	int i =0;
+        printf("nbvert %d\n",nbVertices);
+	for(i = 0; i<nbVertices; i+=3){
+		printf("%f %f %f\n",vertices[i], vertices[i+1],vertices[i+2]);
+	}
+	
+	 printf("nbindex %d\n",nbIndex);
+
+	for(i = 0; i<nbIndex; i++){
+		printf("%d ", index[i]);
+	}
+	printf("\n");
 
 	GLuint ibo;
 	glGenBuffers(1, &ibo);
@@ -216,7 +229,7 @@ struct Object *createObject(struct Vec3 vertices[], int nbVertices, unsigned sho
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vec3)*nbVertices, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*nbVertices, vertices, GL_STATIC_DRAW);
 
 	obj->ibo = ibo;
 	obj->vbo = vbo;

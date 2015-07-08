@@ -3,6 +3,10 @@ local ffi = require('ffi')
 local vec3 = require('vec3')
 local mat4 = require('mat4')
 local sdl2 = require('sdl2')
+local loadobj = require('loadObj') 
+
+local idx, vert = loadobj.load()
+
 
 ffi.cdef[[
   
@@ -60,7 +64,7 @@ void setMatrix(struct Node *n, float *mat);
 void loadShader(struct shader* sh, GLbyte *vertexshader, GLbyte *fragmentshader);
 void deleteShader(struct shader *sh);
 
-struct Object *createObject(struct Vec3 vertices[], int nbVertices, unsigned short index[] , int nbIndex);
+struct Object *createObject(float vertices[], int nbVertices, unsigned short index[] , int nbIndex);
 struct Object *createTriangle(struct Vec3 vertices[3]);
 struct Object *createCarre( struct Vec3 vertices[4]);
 void createTexture( struct Object *object, int width, int height, unsigned char *data);
@@ -130,7 +134,24 @@ engine.loadShader(shader, c_str_vertex, c_str_fragment)
 engine.initNode(nodes)
 
 
-engine.pushNode(nodes, engine.createObject(ffi.new("struct Vec3[4]",{{-0.4, -0.4, 0.0},{-0.4, 0.4, 0.0},{0.4, -0.4, 0.0},{0.4, 0.4,0.0}}),4,ffi.new("unsigned short[6]",{0,1,2, 1,2,3}),6), mat.C)
+local cvec3 = {}
+
+print(vert)
+
+local nbvert = 0
+for i=1,#vert,3 do
+    --print(cube[2][i][1])
+   cvec3[i] = vert[i][1]
+    cvec3[i+1] = vert[i][2]
+     cvec3[i+2] = vert[i][3]
+     print('v',cvec3[i],cvec3[i+1],cvec3[i+2])
+     nbvert = i
+end
+
+print(nbvert)
+
+
+engine.pushNode(nodes, engine.createObject(ffi.new("float[84]",cvec3),nbvert,ffi.new("unsigned short[28]",idx),28), mat.C)
 
 engine.mainLoop(nodes, shader, win)
 

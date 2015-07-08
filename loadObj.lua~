@@ -1,0 +1,80 @@
+
+local wavefont = [[
+# cube.obj
+#
+ 
+g cube
+ 
+v  0.0  0.0  0.0
+v  0.0  0.0  1.0
+v  0.0  1.0  0.0
+v  0.0  1.0  1.0
+v  1.0  0.0  0.0
+v  1.0  0.0  1.0
+v  1.0  1.0  0.0
+v  1.0  1.0  1.0
+
+vn  0.0  0.0  1.0
+vn  0.0  0.0 -1.0
+vn  0.0  1.0  0.0
+vn  0.0 -1.0  0.0
+vn  1.0  0.0  0.0
+vn -1.0  0.0  0.0
+ 
+f  1//2  7//2  5//2
+f  1//2  3//2  7//2 
+f  1//6  4//6  3//6 
+f  1//6  2//6  4//6 
+f  3//3  8//3  7//3 
+f  3//3  4//3  8//3 
+f  5//5  7//5  8//5 
+f  5//5  8//5  6//5 
+f  1//4  5//4  6//4 
+f  1//4  6//4  2//4 
+f  2//1  6//1  8//1 
+f  2//1  8//1  4//1 
+]]
+
+local vertices = {}
+local normales = {}
+local faces = {}
+
+local i=1
+for v1,v2,v3 in wavefont:gfind("v +(%-?%d*%.%d+) +(%-?%d*%.%d+) +(%-?%d*%.%d+)") do
+  vertices[i] = {v1,v2,v3}
+  i = i+1
+end
+
+i=1
+for vn1,vn2,vn3 in wavefont:gfind("vn +(%-?%d*%.%d+) +(%-?%d*%.%d+) +(%-?%d*%.%d+)") do
+  normales[i] = {vn1,vn2,vn3}
+  i = i+1
+end
+
+
+i=1
+for fv1, fn1, fv2, fn2, fv3, fn3 in wavefont:gfind("f +(%d+)//(%d+) +(%d+)//(%d+) +(%d+)//(%d+)") do
+  faces[i] = {fv1,fn1,fv2,fn2,fv3,fn3}
+  i = i+1
+end
+
+
+print('\nvertices')
+for i=1,#vertices,1 do
+	print( vertices[i][1] .. ' , ' .. vertices[i][2] .. ' , ' .. vertices[i][3])
+end
+
+
+print('\nnormales')
+for i=1,#normales,1 do
+	print( normales[i][1] .. ' , ' .. normales[i][2] .. ' , ' .. normales[i][3])
+end
+
+
+print('\nfaces')
+for i=1,#faces,1 do
+	print(	faces[i][1] .. ' ' .. faces[i][2]..'  ,  ' .. faces[i][3] .. ' ' .. faces[i][4]..'  ,  ' .. faces[i][5] .. ' ' .. faces[i][6] )
+end
+
+
+

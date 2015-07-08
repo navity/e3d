@@ -37,14 +37,44 @@ f  2//1  8//1  4//1
 
 local vertices = {}
 local normales = {}
-local indices = {}
+local faces = {}
 
 local i=1
-for v1,v2,v3 in wavefont:gfind("v +(%d*%.%d+) +(%d*%.%d+) +(%d*%.%d+)") do
+for v1,v2,v3 in wavefont:gfind("v +(%-?%d*%.%d+) +(%-?%d*%.%d+) +(%-?%d*%.%d+)") do
   vertices[i] = {v1,v2,v3}
   i = i+1
 end
 
+i=1
+for vn1,vn2,vn3 in wavefont:gfind("vn +(%-?%d*%.%d+) +(%-?%d*%.%d+) +(%-?%d*%.%d+)") do
+  normales[i] = {vn1,vn2,vn3}
+  i = i+1
+end
+
+
+i=1
+for fv1, fn1, fv2, fn2, fv3, fn3 in wavefont:gfind("f +(%d+)//(%d+) +(%d+)//(%d+) +(%d+)//(%d+)") do
+  faces[i] = {fv1,fn1,fv2,fn2,fv3,fn3}
+  i = i+1
+end
+
+
+print('\nvertices')
+for i=1,#vertices,1 do
+	print( vertices[i][1] .. ' , ' .. vertices[i][2] .. ' , ' .. vertices[i][3])
+end
+
+
+print('\nnormales')
+for i=1,#normales,1 do
+	print( normales[i][1] .. ' , ' .. normales[i][2] .. ' , ' .. normales[i][3])
+end
+
+
+print('\nfaces')
+for i=1,#faces,1 do
+	print(	faces[i][1] .. ' ' .. faces[i][2]..'  ,  ' .. faces[i][3] .. ' ' .. faces[i][4]..'  ,  ' .. faces[i][5] .. ' ' .. faces[i][6] )
+end
 
 
 

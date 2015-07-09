@@ -90,16 +90,19 @@ local shader = ffi.new("struct shader[1]")
 local vertexShader = [[
 attribute vec3 position;
 uniform mat4 matrix;
+varying vec3 pos;
 void main()
 {
+	pos = position;
   gl_Position =  matrix * vec4(position,1.0);
 }]]
 
 
 local fragmentShader = [[
+varying vec3 pos;
 void main()
 {
-  gl_FragColor = vec4( 1.0,0.1,1.0 , 1.0);
+  gl_FragColor = vec4(pos,1.0);
 }]]
 
 local win = ffi.new("SDL_Window*")
@@ -114,16 +117,19 @@ local vectord = vec3:new(0.001,0.001,0.0)
 
 local time = 0.0
 
+local perspectivemat = mat4:new(perspectivemat,2.7,1,0.1,10)
+
 engine.onKeyPress( function(evt)
 
 	local kc = evt
 --	print(kc)
-	  if		kc == 1073741903 then 	vectord:set(  0.03,  0.0,  0.0)
-	  elseif	kc == 1073741904 then 	vectord:set( -0.03,  0.0,  0.0)
-	  elseif	kc == 1073741905 then 	vectord:set(  0.0,  -0.03,  0.0)
-	  elseif	kc == 1073741906 then 	vectord:set( -0.0,  0.03,  0.0) end
+	  if		kc == 1073741903 then 	vectord:set(  1.0,  0.0,  0.0)
+	  elseif	kc == 1073741904 then 	vectord:set( -1.0,  0.0,  0.0)
+	  elseif	kc == 1073741905 then 	vectord:set(  0.0,  -1.0,  0.0)
+	  elseif	kc == 1073741906 then 	vectord:set( -0.0,  1.0,  0.0) end
 	  
-	mat = mat:translate(mat,vectord)
+	mat = mat:rotate(mat,0.01,vectord)
+	print(mat)
 end)
 
 local c_str_vertex = ffi.cast("unsigned char*",vertexShader)
@@ -136,55 +142,38 @@ engine.initNode(nodes)
 
 local cvec3 = {}
 
-print(vert)
+--print(vert)
 
-local nbvert = 0
-for i=1,#vert,3 do
+--local nbvert = 0
+--for i=1,#vert,3 do
     --print(cube[2][i][1])
-   cvec3[i] = vert[i][1]
-    cvec3[i+1] = vert[i][2]
-     cvec3[i+2] = vert[i][3]
-     print('v',cvec3[i],cvec3[i+1],cvec3[i+2])
-     nbvert = i
+--   cvec3[i] = vert[i][1]
+--    cvec3[i+1] = vert[i][2]
+--     cvec3[i+2] = vert[i][3]
+--     print('v',cvec3[i],cvec3[i+1],cvec3[i+2])
+--     nbvert = i
+--end
+
+function printT2D(v)
+	local str = ""
+	for i=1,#v,1 do
+		str = str .. 'v '
+		for j=1, #v[i],1 do
+			str = str .. ' ' .. v[i][j]
+			cvec3[#cvec3+1] = v[i][j]
+		end
+	end
+	--print(str)
 end
 
-print(nbvert)
+printT2D(vert)
+
+nbvert = #cvec3
+
+--print(nbvert)
 
 
-engine.pushNode(nodes, engine.createObject(ffi.new("float[84]",cvec3),nbvert,ffi.new("unsigned short[28]",idx),28), mat.C)
+engine.pushNode(nodes, engine.createObject(ffi.new("float[81]",cvec3),81,ffi.new("unsigned short[36]",idx),36), mat.C)
 
 engine.mainLoop(nodes, shader, win)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

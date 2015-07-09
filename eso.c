@@ -431,9 +431,9 @@ void mainLoop(struct Node* node, struct shader *sh, SDL_Window* win){
 		
 		//glFlush();
 	}
-/*	SDL_DestroyWindow(win);
+	SDL_DestroyWindow(win);
 	SDL_Quit();
-*/}
+}
 
 
 void quit(SDL_Window *win, SDL_GLContext *contexteOpenGL) {

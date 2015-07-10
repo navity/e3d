@@ -37,16 +37,18 @@ struct shader{
 	GLuint vertex;
 	GLuint uMatrix;
 
-	GLint vec4;
+	GLint position;
+	GLint normal;
 	//	float *matrix;
 
 };
 
 struct Object {
 
+	GLuint normales;
 	GLuint vbo;
 	GLuint ibo;
-	GLint nbi;
+	GLuint nbi;
 	GLuint *tex;
 };
 
@@ -70,13 +72,14 @@ struct Node{
 	float *mat;
 };
 
-void initNode(struct Node *node){
+void initNode(struct Node *node,float *mat){
 	if(node){
+		if(!mat) mat = newMat4();
 		node->deb = malloc(sizeof(struct Node));
 		node->max = node->deb+1;
 		node->fin = node->deb;
 
-		node->mat = newMat4();
+		node->mat = mat;
 
 		node->deb->deb = NULL;
 		node->deb->fin = NULL;
@@ -190,8 +193,10 @@ printf("%s\n-----\n%s\n",vertexshader,fragmentshader);
 
 	glUseProgram(sh->prgm);
 
-	sh->vec4 = glGetAttribLocation(sh->prgm, "position");
+	sh->position = glGetAttribLocation(sh->prgm, "position");
+	sh->normal = glGetAttribLocation(sh->prgm, "normal"); 
 	sh->uMatrix = glGetUniformLocation(sh->prgm, "matrix");
+	printf("pos:%d normal:%d matrix:%d\n",sh->position, sh->normal, sh->uMatrix);
 }
 
 
@@ -205,13 +210,18 @@ void deleteShader(struct shader *sh){
 }
 
 
-struct Object *createObject(float vertices[], int nbVertices, unsigned short index[] , int nbIndex){
+struct Object *createObject(struct Vec3 vertices[], struct Vec3 normales[], unsigned short nbVertices, unsigned short index[] , int nbIndex){
       	struct Object *obj = malloc(sizeof(struct Object));
 
 	int i =0;
-        printf("nbvert %d\n",nbVertices);
-	for(i = 0; i<nbVertices; i+=3){
-		printf("%f %f %f\n",vertices[i], vertices[i+1],vertices[i+2]);
+	 printf("nbv %d\n",nbVertices);
+	for(i = 0; i<nbVertices; i++){
+		printf("%f %f %f\n",vertices[i].x, vertices[i].y,vertices[i].z);
+	}
+	 
+	printf("normales \n");
+	for(i = 0; i<nbVertices; i++){
+		printf("%f %f %f\n",normales[i].x, normales[i].y, normales[i].z);
 	}
 	
 	 printf("nbindex %d\n",nbIndex);
@@ -229,8 +239,15 @@ struct Object *createObject(float vertices[], int nbVertices, unsigned short ind
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*nbVertices, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vec3)*3*nbVertices, vertices, GL_STATIC_DRAW);
 
+	GLuint normalbo;
+	glGenBuffers(1, &normalbo);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(struct Vec3)*3*nbVertices, normales, GL_STATIC_DRAW);
+	
+
+	obj->normales = normalbo;
 	obj->ibo = ibo;
 	obj->vbo = vbo;
 	obj->nbi = nbIndex;
@@ -304,10 +321,12 @@ void createTexture( struct Object *object, int width, int height, unsigned char 
 
 void drawScene(struct Node *node, struct shader *sh){
 
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(sh->position);
+	glEnableVertexAttribArray(sh->normal);
 
 	int i;
 
+	printf("pos:%d normal:%d matrix:%d\n",sh->position, sh->normal, sh->uMatrix);
 	//printf("rr %d %p\n", node->fin - node->deb, node->mat);
 
 	for(i=0; i < node->fin - node->deb; i++) {
@@ -322,17 +341,19 @@ void drawScene(struct Node *node, struct shader *sh){
 
 		glUniformMatrix4fv(sh->uMatrix, 1, GL_FALSE, mat);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, n->object->ibo);
 		glBindBuffer(GL_ARRAY_BUFFER, n->object->vbo);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glVertexAttribPointer(sh->position, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glBindBuffer(GL_ARRAY_BUFFER, n->object->normales);
+		glVertexAttribPointer(sh->normal,3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, n->object->ibo);
 
-		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, n->object->nbi, GL_UNSIGNED_SHORT, NULL);
 		//			n = n->deb;
 		//		}while( n );
 	}
 
-	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(sh->position);
+	glDisableVertexAttribArray(sh->normal);
 }
 
 SDL_Window* createWindow(){

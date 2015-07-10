@@ -22,6 +22,7 @@ function mat4:identity()
 	self[4] = 0;	self[5] = 1;	self[6] = 0;	self[7] = 0
 	self[8] = 0;	self[9] = 0;	self[10] = 1;	self[11] = 0
 	self[12] = 0;	self[13] = 0;	self[14] = 0;	self[15] = 1
+	return self
 end
 
 

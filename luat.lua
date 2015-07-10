@@ -5,7 +5,7 @@ local mat4 = require('mat4')
 local sdl2 = require('sdl2')
 local loadobj = require('loadObj') 
 
-local idx, vert = loadobj.load()
+local idx, vert, normal = loadobj.load()
 
 
 ffi.cdef[[
@@ -51,7 +51,7 @@ struct Node{
 SDL_Window* createWindow();
 void mainLoop(struct Node* node, struct shader *sh, SDL_Window* win);
 
-void initNode(struct Node *node);
+void initNode(struct Node *node,float *mat);
 
 void freeNode(struct Node *node);
 
@@ -64,7 +64,7 @@ void setMatrix(struct Node *n, float *mat);
 void loadShader(struct shader* sh, GLbyte *vertexshader, GLbyte *fragmentshader);
 void deleteShader(struct shader *sh);
 
-struct Object *createObject(float vertices[], int nbVertices, unsigned short index[] , int nbIndex);
+struct Object *createObject(struct Vec3 vertices[], struct Vec3 normales[], int nbVert, unsigned short index[] , int nbIndex);
 struct Object *createTriangle(struct Vec3 vertices[3]);
 struct Object *createCarre( struct Vec3 vertices[4]);
 void createTexture( struct Object *object, int width, int height, unsigned char *data);
@@ -89,11 +89,12 @@ local shader = ffi.new("struct shader[1]")
 
 local vertexShader = [[
 attribute vec3 position;
+attribute vec3 normal;
 uniform mat4 matrix;
 varying vec3 pos;
 void main()
 {
-	pos = position;
+	pos = normal;
   gl_Position =  matrix * vec4(position,1.0);
 }]]
 
@@ -102,7 +103,7 @@ local fragmentShader = [[
 varying vec3 pos;
 void main()
 {
-  gl_FragColor = vec4(pos,1.0);
+  gl_FragColor = vec4(normalize(pos),1.0);
 }]]
 
 local win = ffi.new("SDL_Window*")
@@ -112,68 +113,48 @@ win = engine.createWindow()
 
 local mat = mat4:new()
 
---local vector = vec3:new(0,0,0)
-local vectord = vec3:new(0.001,0.001,0.0)
+local vectorx = vec3:new(1.0,0.0,0.0)
+local vectory = vec3:new(0.0,1.0,0.0)
 
 local time = 0.0
 
-local perspectivemat = mat4:new(perspectivemat,2.7,1,0.1,10)
+local perspectivemat = mat4:new()
+
+perspectivemat = perspectivemat:translate(perspectivemat,vec3:new(1,0,0)):mult(perspectivemat,perspectivemat,perspectivemat(mat4:new(),2.7,1,0.1,10))
+
+	local anglex = 0.0
+	local angley = 0.0
+
+	
 
 engine.onKeyPress( function(evt)
 
+
 	local kc = evt
 --	print(kc)
-	  if		kc == 1073741903 then 	vectord:set(  1.0,  0.0,  0.0)
-	  elseif	kc == 1073741904 then 	vectord:set( -1.0,  0.0,  0.0)
-	  elseif	kc == 1073741905 then 	vectord:set(  0.0,  -1.0,  0.0)
-	  elseif	kc == 1073741906 then 	vectord:set( -0.0,  1.0,  0.0) end
+	  if		kc == 1073741903 then 	anglex = anglex + 0.01
+	  elseif	kc == 1073741904 then 	anglex = anglex - 0.01
+	  elseif	kc == 1073741905 then 	angley = angley + 0.01
+	  elseif	kc == 1073741906 then 	angley = angley - 0.01 end
 	  
-	mat = mat:rotate(mat,0.01,vectord)
+	  if kc > 1000000 then  
+		mat = mat:identity():rotate(mat,anglex,vectorx):mult(mat,mat:rotate(mat,angley,vectory))
+	end
 	print(mat)
 end)
+
+
 
 local c_str_vertex = ffi.cast("unsigned char*",vertexShader)
 local c_str_fragment = ffi.cast("unsigned char*",fragmentShader)
 
 engine.loadShader(shader, c_str_vertex, c_str_fragment)
 
-engine.initNode(nodes)
+engine.initNode(nodes,perspectivemat.C)
 
 
 local cvec3 = {}
-
---print(vert)
-
---local nbvert = 0
---for i=1,#vert,3 do
-    --print(cube[2][i][1])
---   cvec3[i] = vert[i][1]
---    cvec3[i+1] = vert[i][2]
---     cvec3[i+2] = vert[i][3]
---     print('v',cvec3[i],cvec3[i+1],cvec3[i+2])
---     nbvert = i
---end
-
-function printT2D(v)
-	local str = ""
-	for i=1,#v,1 do
-		str = str .. 'v '
-		for j=1, #v[i],1 do
-			str = str .. ' ' .. v[i][j]
-			cvec3[#cvec3+1] = v[i][j]
-		end
-	end
-	--print(str)
-end
-
-printT2D(vert)
-
-nbvert = #cvec3
-
---print(nbvert)
-
-
-engine.pushNode(nodes, engine.createObject(ffi.new("float[81]",cvec3),81,ffi.new("unsigned short[36]",idx),36), mat.C)
+engine.pushNode(nodes, engine.createObject(ffi.new("struct Vec3[36]",vert), ffi.new("struct Vec3[27]",normal),27,ffi.new("unsigned short[36]",idx),36), mat.C)
 
 engine.mainLoop(nodes, shader, win)
 

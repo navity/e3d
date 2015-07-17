@@ -171,10 +171,25 @@ function res.load()
 
 	end
 
-	print("size")
-	print(#newVertices)
-	print(#index)
-	print("---")
+	--print("size")
+	--print(#newVertices)
+	--print(#index)
+	--print("---")
+	print(wavefont)
+	
+	--printT2D(newVertices)
+	--for i=1, #index,1 do
+	--	print(index[i])
+	--end
+	
+	for i=1, #index ,1 do
+		
+		print(
+			newVertices[index[i]+1][1] .. ' ' ..
+			newVertices[index[i]+1][2] .. ' ' ..
+			newVertices[index[i]+1][3] )
+			
+	end
 
 	return index, newVertices, newNormales, newTextures 
 end

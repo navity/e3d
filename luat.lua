@@ -94,7 +94,7 @@ uniform mat4 matrix;
 varying vec3 pos;
 void main()
 {
-	pos = normal;
+	pos = normal+vec3(1.0,1.0,1.0);
   gl_Position =  matrix * vec4(position,1.0);
 }]]
 
@@ -120,7 +120,9 @@ local time = 0.0
 
 local perspectivemat = mat4:new()
 
-perspectivemat = perspectivemat:translate(perspectivemat,vec3:new(1,0,0)):mult(perspectivemat,perspectivemat,perspectivemat(mat4:new(),2.7,1,0.1,10))
+perspectivemat = perspectivemat:translate(perspectivemat, vec3:new(0,0,-3))
+perspectivemat = perspectivemat:mult(perspectivemat, perspectivemat:perspective(mat4:new(),1,0.7,1,10))
+--perspectivemat = perspectivemat:translate(perspectivemat,vec3:new(0,0,1)):mult(perspectivemat:perspective(mat4:new(),2.7,1,0.1,10),perspective)
 
 	local anglex = 0.0
 	local angley = 0.0

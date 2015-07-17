@@ -326,7 +326,7 @@ void drawScene(struct Node *node, struct shader *sh){
 
 	int i;
 
-	printf("pos:%d normal:%d matrix:%d\n",sh->position, sh->normal, sh->uMatrix);
+	//printf("pos:%d normal:%d matrix:%d\n",sh->position, sh->normal, sh->uMatrix);
 	//printf("rr %d %p\n", node->fin - node->deb, node->mat);
 
 	for(i=0; i < node->fin - node->deb; i++) {
@@ -410,6 +410,9 @@ void onKeyUp(void (*callback)(int evt)){
 }
 
 void mainLoop(struct Node* node, struct shader *sh, SDL_Window* win){
+	glEnable(GL_DEPTH_TEST);
+
+
   GLuint Varrid;
 	glGenVertexArrays(1, &Varrid);
 	glBindVertexArray(Varrid);
